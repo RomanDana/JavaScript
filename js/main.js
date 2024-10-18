@@ -1,4 +1,4 @@
-let totalCompra = 0;
+/* let totalCompra = 0;
 let cantidadManzanas = 0;
 let cantidadBananas = 0;
 let cantidadNaranjas = 0;
@@ -129,9 +129,67 @@ total = aplicarDescuento(total);
 
 alert("El total de la compra es: $" + total)
 
-alert("Finalizando compra, ¡¡Gracias por confiar en Fruteria Román!!")
+alert("Finalizando compra, ¡¡Gracias por confiar en Fruteria Román!!") */
 
 
 
+
+
+let totalCompra = 0;
+let cantidades = [0, 0, 0, 0, 0, 0, 0, 0];
+const precios = [210, 185, 208, 156, 106, 98, 280, 164];
+const frutas = ["manzanas", "bananas", "naranjas", "peras", "ciruelas", "mandarinas", "mangos", "duraznos"];
+
+
+
+const sumar = (cantidad, indice) => cantidades[indice] += cantidad;
+
+function compraTotal(cantidades, precios) {
+    let total = 0;
+    for (let i = 0; i < cantidades.length; i++) {
+        total += cantidades[i] * precios[i];
+    }
+    return total;
+}
+
+function aplicarDescuento(total) {
+    if (total > 5500) {
+        alert("¡Felicidades! Tienes un descuento del 10%, porque has superado el monto de $5500");
+        return total * 0.90; 
+    }
+    return total;
+}
+
+let continuar = true;
+
+while (continuar) {
+    let menu = parseInt(prompt("Elija un producto: \n 1- Manzana \n 2- Banana \n 3- Naranja \n 4- Pera \n 5- Ciruela \n 6- Mandarina \n 7- Mango \n 8- Durazno \n 9- Salir"));
+    if (menu >= 1 && menu <= 8){
+        let cantidad = parseInt(prompt("¿Cuantas unidades de " + frutas[menu -1] + " desea llevar?" ))
+        sumar(cantidad, menu -1)
+        console.log("agregaste " + (cantidad) + " " + frutas[menu -1] + " a tu compra")
+        }else if (menu === 9){
+                continuar=false
+                console.log("gracias por su compra!!")
+        }else{
+                alert("no tenemos ese producto....")
+        }
+
+    if (continuar) {
+        let confirmacion = prompt("¿Desea seguir comprando? (si/no)").toLowerCase();
+        if (confirmacion === "no") {
+            continuar = false;
+            console.log("¡¡Gracias por su compra!!");
+        } else if (confirmacion === "si") {
+            console.log("No he entendido tu respuesta...");
+        }
+    }
+}
+
+let total = compraTotal(cantidades, precios);
+total = aplicarDescuento(total);
+
+alert("El total de la compra es: $" + total);
+alert("Finalizando compra, ¡¡Gracias por confiar en Frutería Román!!");
 
 
