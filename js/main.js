@@ -180,9 +180,12 @@ while (continuar) {
         if (confirmacion === "no") {
             continuar = false;
             console.log("¡¡Gracias por su compra!!");
-        } else if (confirmacion === "si") {
-            console.log("No he entendido tu respuesta...");
-        }
+        } else if(confirmacion === "si"){
+                console.log("¿Que mas quiere llevar?")
+        } 
+        else{
+                console.log ("No he entendido tu respuesta...") 
+        }        
     }
 }
 
