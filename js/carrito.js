@@ -25,7 +25,12 @@ function calcularTotal() {
     for (let i = 0; i < carrito.length; i++) {
         total += carrito[i].precio * carrito[i].cantidad;
     }
-    const totalConDescuento = total > 4500 ? total * 0.9 : total;
+    let totalConDescuento; 
+    if (total > 4500) {
+        totalConDescuento = total * 0.9; 
+    } else {
+        totalConDescuento = total; 
+    }
 
     totalCompra.innerText = `Total sin descuento: $${total}`;
 
