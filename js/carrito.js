@@ -21,8 +21,12 @@ function actualizarCarrito() {
 }
 
 function calcularTotal() {
-    const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+    let total = 0;
+    for (let i = 0; i < carrito.length; i++) {
+        total += carrito[i].precio * carrito[i].cantidad;
+    }
     const totalConDescuento = total > 4500 ? total * 0.9 : total;
+
     totalCompra.innerText = `Total sin descuento: $${total}`;
 
     if (total > 4500) {
@@ -52,4 +56,3 @@ function eliminarDelCarrito(id) {
 }
 
 actualizarCarrito();
-

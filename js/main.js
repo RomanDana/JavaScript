@@ -35,7 +35,6 @@ function agregarBotones() {
     });
 }
 
-// Agrega productos al carrito y lo guarda en localStorage
 function agregarAlCarrito(id) {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const producto = productos.find(prod => prod.id == id);
@@ -50,7 +49,6 @@ function agregarAlCarrito(id) {
     localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
-// Llama a la función para renderizar productos
 renderizarProductos();
 
 
