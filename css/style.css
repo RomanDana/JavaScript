@@ -1,3 +1,71 @@
+*{
+    padding: 0;
+    margin: 0;
+}
 body{
-    background-color: rgba(255, 0, 0, 0.477);
+    background-color: rgba(255, 0, 0, 0.334);
+}
+h1{
+    font-size: 2.8rem; 
+    color: rgb(255, 0, 0);
+    text-align: center;
+    margin-top: 20px;
+  
+}
+h2{
+    color: rgba(255, 0, 0, 0.612);
+    text-align: center;
+    margin: 30px;
+    text-decoration: underline double 2px;
+}
+#contenedor-productos{
+    font-size: 1.8rem;
+    font-weight: lighter;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 3fr;
+    padding:30px ;
+    margin-top: 50px;
+    text-align: center;
+}
+h3{
+    text-decoration: underline;
+}
+.precio{
+    color: rgb(17, 140, 17);
+    font-size: 1.9rem;
+    line-height: 1.8rem;
+    font-style: italic;
+    padding-top: 10px;
+}
+.contador{
+    text-align: center;
+    margin-bottom: 50px;
+    margin-top: 5px;
+}
+a{
+  color: rgb(255, 0, 0);  
+  font-size: 1.2rem;
+}
+#contenedor-carrito{
+    font-size: 1.8rem;
+    font-weight: lighter;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 3fr;
+    padding:30px ;
+    margin-top: 50px;
+    text-align: center;
+}
+.btn-eliminar{
+    text-align: center;
+    margin-bottom: 50px;
+    margin-top: 5px;
+}
+#total-compra{
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    
 }

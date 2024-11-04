@@ -17,35 +17,59 @@ function renderizarProductos() {
         div.className = "producto";
         div.innerHTML = 
             `<h3>${producto.nombre}</h3>
-            <p>Precio: $${producto.precio}</p>
-            <button class="btn-agregar" id="${producto.id}">Agregar al carrito</button>`
-        ;
+            <p class= "precio">Precio: $${producto.precio}</p>
+            <div class="contador">
+                <button class="btn-restar" id="minus-${producto.id}">-</button>
+                <span id="counter-${producto.id}">0</span>
+                <button class="btn-sumar" id="plus-${producto.id}">+</button>
+            </div>`;
         contenedorProductos.appendChild(div);
     });
     agregarBotones();
 }
 
 function agregarBotones() {
-    const botonesAgregar = document.querySelectorAll(".btn-agregar");
-    botonesAgregar.forEach(boton => {
-        boton.onclick = (e) => {
-            const productoId = e.target.id;
-            agregarAlCarrito(productoId);                      
+    productos.forEach(producto => {
+        const btnSumar = document.getElementById(`plus-${producto.id}`)
+        const btnRestar = document.getElementById(`minus-${producto.id}`)
+        const counter = document.getElementById(`counter-${producto.id}`)
+        let contador = 0
+
+        btnSumar.onclick = () => {
+            contador++
+            counter.innerHTML = contador
+            btnRestar.disabled = false
+            actualizarCarrito(producto.id, contador)
         };
+
+        btnRestar.onclick = () => {
+            if (contador > 0) {
+                contador--
+                counter.innerHTML = contador
+                if (contador === 0) {
+                    btnRestar.disabled = true
+                }
+                actualizarCarrito(producto.id, contador)
+            }
+        };
+        btnRestar.disabled = true
     });
 }
 
-function agregarAlCarrito(id) {
+function actualizarCarrito(id, cantidad) {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const producto = productos.find(prod => prod.id == id);
     const productoEnCarrito = carrito.find(item => item.id == id);
 
     if (productoEnCarrito) {
-        productoEnCarrito.cantidad++;
-    } else {
-        carrito.push({ ...producto, cantidad: 1 });
+        productoEnCarrito.cantidad = cantidad;
+        if (cantidad === 0) {
+            carrito = carrito.filter(item => item.id != id);
+        }
+    } else if (cantidad > 0) {
+        carrito.push({ ...producto, cantidad });
     }
-    console.log(carrito);
+
     localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
