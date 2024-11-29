@@ -1,46 +1,72 @@
-// array de productos
-const productos = [
-    { id: 1, nombre: "Manzana", precio: 210, imagen: "manzanas.jpeg"},
-    { id: 2, nombre: "Banana", precio: 185, imagen: "bananas.jpg"},
-    { id: 3, nombre: "Ciruela", precio: 106, imagen: "ciruelas.jpeg"},    
-    { id: 4, nombre: "Pera", precio: 156, imagen: "peras.jpg"},
-    { id: 5, nombre: "Mango", precio: 280, imagen: "mangos.jpeg"},
-    { id: 6, nombre: "Mandarina", precio: 98, imagen: "mandarinas.jpeg"},
-    { id: 7, nombre: "Naranja", precio: 208, imagen: "naranjas.jpg"},
-    { id: 8, nombre: "Durazno", precio: 164, imagen: "Duraznos.jpg"},
-];
+let container = document.getElementById("contenedor-productos");
 
-// contenedor de productos en el DOM
-const contenedorProductos = document.getElementById("contenedor-productos");
-
-// funcion  para renderizar los productos en el contenedor
-function renderizarProductos() {
-    productos.forEach(producto => {
-        const div = crearElementoProducto(producto);
-        contenedorProductos.appendChild(div);
+// funcion que maneja la carga de productos
+function cargarProductos() {
+    return new Promise((resolve, reject) => {
+        fetch("./db/data.json")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo cargar el archivo JSON");
+                }
+                return response.json();
+            })
+            .then(data => {
+                resolve(data);
+            })
+            .catch(error => {
+                reject(`Error al cargar productos: ${error.message}`);
+            });
     });
-    agregarBotones();
 }
 
-// fncion para crear la estructura HTML de un producto individual
-function crearElementoProducto(producto) {
-    const div = document.createElement("div");
-    div.className = "producto";
-    div.innerHTML = 
-        `<h3>${producto.nombre}</h3>
-        <img src="./img/${producto.imagen}" alt="${producto.nombre}" class="imagen-producto">
-        <p class="precio">Precio: $${producto.precio}</p>
-        <div class="contador">
-            <button class="btn-restar" id="minus-${producto.id}">-</button>
-            <span id="counter-${producto.id}">0</span>
-            <button class="btn-sumar" id="plus-${producto.id}">+</button>
-        </div>
-        <button class="btn-agregar" id="add-${producto.id}">Agregar</button>`;
-    return div;
+// inicializar productos con try-catch y renderizarlos
+async function inicializarProductos() {
+    try {
+        const productos = await cargarProductos();
+        productos.forEach(producto => {
+            const card = document.createElement("div");
+            card.className = "producto";
+            card.innerHTML = `
+                <h3>${producto.nombre}</h3>
+                <img src="./img/${producto.imagen}" alt="${producto.nombre}" class="imagen-producto">
+                <p class="precio">Precio: $${producto.precio}</p>
+                <div class="contador">
+                    <button class="btn-restar" id="minus-${producto.id}">-</button>
+                    <span id="counter-${producto.id}">0</span>
+                    <button class="btn-sumar" id="plus-${producto.id}">+</button>
+                </div>
+                <button class="btn-agregar" id="add-${producto.id}">Agregar</button>`;
+            container.appendChild(card);
+        });
+        agregarBotones(productos);
+    } catch (error) {
+        mostrarMensajeError(error);
+    }
 }
 
-// funcion para la logica de los botones sumar y restar para cada producto
-function agregarBotones() {
+// funcion para mostrar errores en el DOM
+function mostrarMensajeError(mensaje) {
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "error";
+    errorDiv.textContent = mensaje;
+    container.appendChild(errorDiv);
+}
+
+// validar carrito
+function validarCarrito(carrito) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (carrito.length === 0) {
+                reject("No has seleccionado la cantidad.");
+            } else {
+                resolve("Producto agregado al carrito.");
+            }
+        }, 250);
+    });
+}
+
+// logica de los botones
+function agregarBotones(productos) {
     productos.forEach(producto => {
         const btnSumar = document.getElementById(`plus-${producto.id}`);
         const btnRestar = document.getElementById(`minus-${producto.id}`);
@@ -53,7 +79,7 @@ function agregarBotones() {
             contador++;
             actualizarContador(counter, contador);
             btnRestar.disabled = false;
-            actualizarCarrito(producto.id, contador);
+            actualizarCarrito(producto.id, contador, productos);
         };
 
         // boton restar
@@ -64,29 +90,64 @@ function agregarBotones() {
                 if (contador === 0) {
                     btnRestar.disabled = true;
                 }
-                actualizarCarrito(producto.id, contador);
+                actualizarCarrito(producto.id, contador, productos);
             }
         };
         btnRestar.disabled = true;
 
-        //boton agregar
-        btnAgregar.onclick = () => {
-            if(contador > 0){
-                actualizarCarrito(producto, id, contador);
+        // boton agregar
+        btnAgregar.onclick = async () => {
+            try {
+                if (contador === 0) {
+                    throw new Error("No has seleccionado la cantidad.");
+                }
+                const mensaje = await validarCarrito(obtenerCarrito());
+                Toastify({
+                    text: mensaje,
+                    duration: 2000,
+                    destination: "../carrito.html",
+                    newWindow: true,
+                    close: false,
+                    gravity: "top",
+                    position: "right",
+                    stopOnFocus: true,
+                    style: {
+                        background: "linear-gradient(to right, #c80000, #ff0000)",
+                    },
+                }).showToast();
+            } catch (error) {
+                Toastify({
+                    text: error.message,
+                    duration: 1200,
+                    destination: "",
+                    newWindow: true,
+                    close: false,
+                    gravity: "top",
+                    position: "right",
+                    stopOnFocus: true,
+                    style: {
+                        background: "linear-gradient(to right, #c80000, #ff0000)",
+                    },
+                }).showToast();
             }
-        }
+        };
     });
 }
 
-// actualizar el contenido del contador de productos en el HTML
+// actualizar el contador de productos
 function actualizarContador(elemento, valor) {
     elemento.innerHTML = valor;
 }
 
-// funcion para gestionar el carrito de compras
-function actualizarCarrito(id, cantidad) {
+// funciones relacionadas con el carrito
+function obtenerCarrito() {
+    return JSON.parse(localStorage.getItem("carrito")) || [];
+}
+
+// actualizar el carrito con un producto
+function actualizarCarrito(id, cantidad, productos) {
     let carrito = obtenerCarrito();
-    const producto = obtenerProducto(id);
+    const producto = obtenerProducto(id, productos);
     const productoEnCarrito = carrito.find(item => item.id == id);
 
     if (productoEnCarrito) {
@@ -101,13 +162,8 @@ function actualizarCarrito(id, cantidad) {
     guardarCarrito(carrito);
 }
 
-// obtener el carrito del localStorage
-function obtenerCarrito() {
-    return JSON.parse(localStorage.getItem("carrito")) || [];
-}
-
-// obtener un producto por su ID
-function obtenerProducto(id) {
+// obtener un producto por id
+function obtenerProducto(id, productos) {
     return productos.find(prod => prod.id == id);
 }
 
@@ -116,5 +172,7 @@ function guardarCarrito(carrito) {
     localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
-// renderizar los productos al cargar el script
-renderizarProductos();
+inicializarProductos();
+
+
+

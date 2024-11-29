@@ -37,13 +37,14 @@ h2 {
     border-radius: 8px;
     border: double 5px;
     padding: 20px;
-    transition: transform 0.3s ease;
+    transition: 0.3s ease;
     text-align: center;
 }
 .producto:hover {
     transform: scale(1.1, 1.1);
-    transition: all 0.2s;
+    transition: all 0.5s;
     border: dotted 2px;
+    margin-bottom: 15px;
 }
 .producto h3 {
     font-size: 1.8rem;
@@ -106,6 +107,15 @@ h2 {
 }
 .btn-restar:disabled {
     background-color: #cccccc;
+}
+.btn-agregar{
+    margin-top: 5px;
+}
+.btn-agregar:hover{
+    background-color: #118c11;
+    transform: scale(1.3, 1.3);
+    transition: all 0.2s;
+    color: white;
 }
 span {
     font-size: 1.4rem;
@@ -188,6 +198,7 @@ a:hover {
 .btn-eliminar:hover {
     background-color: #ff0000cc;
 }
+
 #total-compra {
     font-size: 1.5rem;
     margin-top: 30px;
@@ -233,4 +244,3 @@ a {
     color: #ff0000;  
     font-size: 1.2rem;
 }
-

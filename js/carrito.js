@@ -4,31 +4,51 @@ const totalCompra = document.getElementById("total-compra");
 const btnFinalizarCompra = document.getElementById("finalizar-compra");
 const mensajeCompra = document.getElementById("mensaje-compra");
 
-function actualizarCarrito() {
-    contenedorCarrito.innerHTML = "";
-    carrito.forEach((item) => {
-        if (item.cantidad > 0) {
-            const div = document.createElement("div");
-            div.className = "item-carrito";
-            div.innerHTML = `
-                <p>${item.nombre} x ${item.cantidad}</p>
-                <p class="precio">$${item.precio * item.cantidad}</p>
-                <div class="control-cantidad">
-                    <button class="btn-restar" id="restar-${item.id}">-</button>
-                    <span class="cantidad" id="counter-${item.id}">${item.cantidad}</span>
-                    <button class="btn-sumar" id="sumar-${item.id}">+</button>
-                </div>
-                <button class="btn-eliminar" id="btn${item.id}">Eliminar</button>
-            `;
-
-            contenedorCarrito.appendChild(div);
+// cargar los productos desde un archivo JSON
+async function cargarProductos() {
+    try {
+        const response = await fetch("./db/data.json");
+        if (!response.ok) {
+            throw new Error(`Error al obtener los datos: archivo JSON no disponible.`);
         }
-    });
-
-    agregarBotonesCarrito();
-    calcularTotal();
+        return await response.json();
+    } catch (error) {
+        throw new Error(`Error al cargar productos: ${error.message}`);
+    }
 }
 
+// actualizar el contenido del carrito
+async function actualizarCarrito() {
+    contenedorCarrito.innerHTML = "";
+    try {
+        const productos = await cargarProductos();
+        carrito.forEach((item) => {
+            const producto = productos.find((prod) => prod.id === item.id);
+            if (producto && item.cantidad > 0) {
+                const div = document.createElement("div");
+                div.className = "item-carrito";
+                div.innerHTML = `
+                    <p>${producto.nombre} x ${item.cantidad}</p>
+                    <p class="precio">$${producto.precio * item.cantidad}</p>
+                    <div class="control-cantidad">
+                        <button class="btn-restar" id="restar-${producto.id}">-</button>
+                        <span class="cantidad" id="counter-${producto.id}">${item.cantidad}</span>
+                        <button class="btn-sumar" id="sumar-${producto.id}">+</button>
+                    </div>
+                    <button class="btn-eliminar" id="btn${producto.id}">Eliminar</button>
+                `;
+                contenedorCarrito.appendChild(div);
+            }
+        });
+
+        agregarBotonesCarrito();
+        calcularTotal();
+    } catch (error) {
+        mensajeCompra.innerHTML = `<p class="error">${error.message}</p>`;
+    }
+}
+
+// agregar eventos a los botones del carrito
 function agregarBotonesCarrito() {
     carrito.forEach((item) => {
         const btnSumar = document.getElementById(`sumar-${item.id}`);
@@ -37,7 +57,7 @@ function agregarBotonesCarrito() {
         const counter = document.getElementById(`counter-${item.id}`);
         let contador = item.cantidad;
 
-        // Botón sumar
+        // Boton sumar
         btnSumar.onclick = () => {
             contador++;
             actualizarContador(counter, contador);
@@ -45,7 +65,7 @@ function agregarBotonesCarrito() {
             actualizarCarritoItem(item.id, contador);
         };
 
-        // Botón restar
+        // Boton restar
         btnRestar.onclick = () => {
             if (contador > 0) {
                 contador--;
@@ -58,15 +78,17 @@ function agregarBotonesCarrito() {
         };
         btnRestar.disabled = contador === 0;
 
-        // Botón eliminar
+        // Boton eliminar
         btnEliminar.onclick = () => eliminarDelCarrito(item.id);
     });
 }
 
+// actualizar el contador de cantidad
 function actualizarContador(elemento, valor) {
     elemento.innerText = valor;
 }
 
+// actualizar la cantidad de un producto en el carrito
 function actualizarCarritoItem(id, cantidad) {
     const productoEnCarrito = carrito.find(item => item.id === id);
 
@@ -80,6 +102,7 @@ function actualizarCarritoItem(id, cantidad) {
     }
 }
 
+// calcular el total de la compra
 function calcularTotal() {
     let total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
     const totalConDescuento = total > 4500 ? total * 0.9 : total;
@@ -95,24 +118,45 @@ function calcularTotal() {
     }
 }
 
+// eliminar un producto del carrito
 function eliminarDelCarrito(id) {
     carrito = carrito.filter(item => item.id !== id);
     localStorage.setItem("carrito", JSON.stringify(carrito));
     actualizarCarrito();
 }
 
+// finalizar la compra con un mensaje
 function finalizarCompra() {
     if (carrito.length === 0) {
-        mensajeCompra.innerText = "Tu carrito está vacío.";
+        Swal.fire({
+            icon: "error",
+            title: "Tu carrito está vacío!!",
+            text: "Necesitas agregar productos"
+        });
     } else {
-        mensajeCompra.innerText = "Gracias por comprar en Frutería Roman";
-        carrito = [];
-        localStorage.removeItem("carrito");
-        actualizarCarrito();
+        Swal.fire({
+            title: "¡Atención!",
+            text: "¿Quieres finalizar la compra?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#118c11",
+            cancelButtonColor: "#ff0000",
+            confirmButtonText: "Comprar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "¡Has comprado en Frutería Roman!",
+                    text: "En 1 hora recibirás detalles del envío",
+                    icon: "success",
+                    confirmButtonColor: "#118c11",
+                });
+                carrito = [];
+                localStorage.removeItem("carrito");
+                actualizarCarrito();
+            }
+        });
     }
 }
 
-btnFinalizarCompra.addEventListener("click", finalizarCompra);
+btnFinalizarCompra.onclick = finalizarCompra;
 actualizarCarrito();
-
-
